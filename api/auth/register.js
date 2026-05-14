@@ -10,10 +10,12 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end()
   if (req.method !== "POST") return res.status(405).json({ message: "Méthode non autorisée" })
 
-  const { username, email, password } = req.body
+  const { username, email, password, role } = req.body
 
   if (!username || !email || !password)
     return res.status(400).json({ message: "Tous les champs sont obligatoires." })
+
+  const userRole = role === "business" ? "business" : "user"
 
   try {
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`
@@ -22,8 +24,8 @@ export default async function handler(req, res) {
 
     const hashedPassword = await bcrypt.hash(password, 10)
     const result = await sql`
-      INSERT INTO users (nom, email, password) 
-      VALUES (${username}, ${email}, ${hashedPassword}) 
+      INSERT INTO users (nom, email, password, role) 
+      VALUES (${username}, ${email}, ${hashedPassword}, ${userRole}) 
       RETURNING id
     `
 
