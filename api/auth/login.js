@@ -27,8 +27,17 @@ export default async function handler(req, res) {
     if (!user.email_verified)
       return res.status(403).json({ message: "Confirme ton email avant de te connecter." })
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "7d" })
-    res.json({ message: "Connexion réussie", token, user: { id: user.id, nom: user.nom, email: user.email } })
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    )
+
+    res.json({
+      message: "Connexion réussie",
+      token,
+      user: { id: user.id, nom: user.nom, email: user.email, role: user.role }
+    })
   } catch (err) {
     console.error("Erreur login:", err)
     res.status(500).json({ message: "Erreur serveur" })
